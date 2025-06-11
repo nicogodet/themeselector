@@ -139,8 +139,6 @@ class Selector:
         self.dockwidget.pushButton_rename.clicked.connect(self.rename_maptheme)
         self.dockwidget.pushButton_duplicate.clicked.connect(self.duplicate_maptheme)
 
-        self.dockwidget.pushButton_up.setIcon(QIcon(QFileInfo(__file__).absolutePath() + '/img/mActionArrowLeft.svg'))
-        self.dockwidget.pushButton_down.setIcon(QIcon(QFileInfo(__file__).absolutePath() + '/img/mActionArrowRight.svg'))
         self.dockwidget.pushButton_up.clicked.connect(self.theme_up)
         self.dockwidget.pushButton_down.clicked.connect(self.theme_down)
 

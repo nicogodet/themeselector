@@ -21,7 +21,7 @@ from typing import Optional, List
 
 from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QDockWidget, QWidget
-from qgis.core import QgsProject
+from qgis.core import QgsApplication, QgsProject
 
 
 class SelectorDockWidget(QDockWidget):
@@ -52,6 +52,15 @@ class SelectorDockWidget(QDockWidget):
             QDockWidget.DockWidgetFeature.DockWidgetFloatable
         )
         self.setFeatures(dock_features)
+
+        # Set button icons from the active QGIS theme
+        self.pushButton_replace.setIcon(QgsApplication.getThemeIcon('/mActionReload.svg'))
+        self.pushButton_add.setIcon(QgsApplication.getThemeIcon('/symbologyAdd.svg'))
+        self.pushButton_remove.setIcon(QgsApplication.getThemeIcon('/symbologyRemove.svg'))
+        self.pushButton_rename.setIcon(QgsApplication.getThemeIcon('/labelingSingle.svg'))
+        self.pushButton_duplicate.setIcon(QgsApplication.getThemeIcon('/mActionDuplicateLayer.svg'))
+        self.pushButton_up.setIcon(QgsApplication.getThemeIcon('/mActionArrowLeft.svg'))
+        self.pushButton_down.setIcon(QgsApplication.getThemeIcon('/mActionArrowRight.svg'))
 
     def getAvailableThemes(self) -> List[str]:
         """Retrieve and return the available map themes from the current QGIS project.
