@@ -277,15 +277,27 @@ class Selector:
         self._connected_layers.clear()
         self.set_buttons_enabled(False)
 
-    def populate(self) -> None:
-        """Populate the theme combo box with available themes."""
-        self.clear()
-        themes = self.dockwidget.getAvailableThemes()
-        for t in themes:
-            self.dockwidget.PresetComboBox.addItem(t)
-        # Select first theme if available
-        if self.dockwidget.PresetComboBox.count() > 0:
-            self.dockwidget.PresetComboBox.setCurrentIndex(0)
+    def populate(self, select: Optional[str] = None) -> None:
+        """Populate the theme combo box with available themes.
+
+        Refilling the combo box does not apply any theme to the map.
+
+        Args:
+            select: Theme name to select; defaults to the currently selected
+                theme, or the first theme if it no longer exists
+        """
+        combo = self.dockwidget.PresetComboBox
+        if select is None:
+            select = self.get_current_theme()
+
+        combo.blockSignals(True)
+        try:
+            self.clear()
+            combo.addItems(self.dockwidget.getAvailableThemes())
+            if combo.count() > 0:
+                combo.setCurrentIndex(max(combo.findText(select, MATCH_FIXED_STRING), 0))
+        finally:
+            combo.blockSignals(False)
         self.update_button_state()
 
     def set_combo_theme(self) -> None:
@@ -307,16 +319,16 @@ class Selector:
         """Navigate to the previous theme in the list."""
         index = self.dockwidget.PresetComboBox.currentIndex()
         if index > 0:
+            # currentIndexChanged applies the theme
             self.dockwidget.PresetComboBox.setCurrentIndex(index - 1)
-            self.apply_selected_theme()
 
     def theme_down(self) -> None:
         """Navigate to the next theme in the list."""
         index = self.dockwidget.PresetComboBox.currentIndex()
         maximum = self.dockwidget.PresetComboBox.count()
         if index < maximum - 1:
+            # currentIndexChanged applies the theme
             self.dockwidget.PresetComboBox.setCurrentIndex(index + 1)
-            self.apply_selected_theme()
 
     def apply_selected_theme(self) -> None:
         """Apply the currently selected theme to the map canvas."""
@@ -325,16 +337,6 @@ class Selector:
         model = iface.layerTreeView().layerTreeModel()
         QgsProject.instance().mapThemeCollection().applyTheme(theme_name, root, model)
         self.check_theme_sync()
-
-    def set_combo_text(self, name: str) -> None:
-        """Set the combo box to a specific theme by name.
-        
-        Args:
-            name: Theme name to select
-        """
-        index = self.dockwidget.PresetComboBox.findText(name, MATCH_FIXED_STRING)
-        if index >= 0:
-            self.dockwidget.PresetComboBox.setCurrentIndex(index)
 
     # -------------------
     # Theme Name Dialog Helper
@@ -378,12 +380,17 @@ class Selector:
         if operation == "rename" and source_theme:
             existing = [t for t in existing if t != source_theme]
 
+        titles = {
+            "add": self.tr("Add Theme"),
+            "rename": self.tr("Rename Theme"),
+            "duplicate": self.tr("Duplicate Theme"),
+        }
         name = self.get_new_theme_name(
-            title=self.tr(f"{operation.capitalize()} Theme"),
+            title=titles[operation],
             initial=initial_name,
             existing=existing
         )
-        if not name:
+        if not name or (operation == "rename" and name == source_theme):
             return
 
         if operation == "add":
@@ -403,8 +410,7 @@ class Selector:
             state = map_collection.mapThemeState(source_theme)
             map_collection.insert(name, state)
 
-        self.populate()
-        self.set_combo_text(name)
+        self.populate(select=name)
 
     # -------------------
     # Theme Methods Using Generic Helper
