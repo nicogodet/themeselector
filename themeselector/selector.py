@@ -112,6 +112,7 @@ class Selector:
 
     def unload(self) -> None:
         """Clean up plugin resources and save settings."""
+        self.dockwidget.hide()
         self.iface.removeToolBarIcon(self.action)
         self.iface.removeDockWidget(self.dockwidget)
 
@@ -133,6 +134,7 @@ class Selector:
         root.visibilityChanged.connect(self.check_theme_sync)
 
         self.dockwidget.PresetComboBox.currentIndexChanged.connect(self.apply_selected_theme)
+        self.dockwidget.PresetComboBox.currentIndexChanged.connect(self.update_navigation_buttons)
         self.dockwidget.pushButton_replace.clicked.connect(self.replace_maptheme)
         self.dockwidget.pushButton_add.clicked.connect(self.add_maptheme)
         self.dockwidget.pushButton_remove.clicked.connect(self.remove_maptheme)
@@ -165,6 +167,13 @@ class Selector:
         """
         self.update_button_state()
 
+    def update_navigation_buttons(self) -> None:
+        """Disable previous/next buttons at the ends of the theme list."""
+        index = self.dockwidget.PresetComboBox.currentIndex()
+        maximum = self.dockwidget.PresetComboBox.count()
+        self.dockwidget.pushButton_up.setEnabled(index > 0)
+        self.dockwidget.pushButton_down.setEnabled(0 <= index < maximum - 1)
+
     def update_button_state(self) -> None:
         """Update button enabled/disabled state based on project state."""
         has_layers = bool(QgsProject.instance().mapLayers())
@@ -176,6 +185,7 @@ class Selector:
         self.dockwidget.pushButton_replace.setEnabled(enabled)
         self.dockwidget.pushButton_rename.setEnabled(enabled)
         self.dockwidget.pushButton_duplicate.setEnabled(enabled)
+        self.update_navigation_buttons()
 
         # Connect styleChanged signals only for new layers
         for layer_id, layer in QgsProject.instance().mapLayers().items():
