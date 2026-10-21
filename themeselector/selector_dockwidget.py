@@ -54,7 +54,7 @@ class SelectorDockWidget(QDockWidget):
         self.setFeatures(dock_features)
 
         # Set button icons from the active QGIS theme
-        self.pushButton_replace.setIcon(QgsApplication.getThemeIcon('/mActionReload.svg'))
+        self.pushButton_replace.setIcon(QgsApplication.getThemeIcon('/mActionFileSave.svg'))
         self.pushButton_add.setIcon(QgsApplication.getThemeIcon('/symbologyAdd.svg'))
         self.pushButton_remove.setIcon(QgsApplication.getThemeIcon('/symbologyRemove.svg'))
         self.pushButton_rename.setIcon(QgsApplication.getThemeIcon('/labelingSingle.svg'))

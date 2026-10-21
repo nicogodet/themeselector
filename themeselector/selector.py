@@ -426,6 +426,15 @@ class Selector:
     def remove_maptheme(self) -> None:
         """Remove the currently selected theme."""
         theme = self.get_current_theme()
+        answer = QMessageBox.question(
+            self.iface.mainWindow(),
+            self.tr("Remove Theme"),
+            self.tr('Remove theme "{}"?').format(theme),
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+        if answer != QMessageBox.StandardButton.Yes:
+            return
         QgsProject.instance().mapThemeCollection().removeMapTheme(theme)
         self.populate()
 
