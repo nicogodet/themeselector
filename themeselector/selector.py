@@ -277,12 +277,14 @@ class Selector:
         self._connected_layers.clear()
         self.set_buttons_enabled(False)
 
-    def populate(self, select: Optional[str] = None) -> None:
+    def populate(self, *_signal_args, select: Optional[str] = None) -> None:
         """Populate the theme combo box with available themes.
 
         Refilling the combo box does not apply any theme to the map.
 
         Args:
+            _signal_args: Ignored; absorbs arguments of connected signals
+                (e.g. the QDomDocument of QgsProject.readProject)
             select: Theme name to select; defaults to the currently selected
                 theme, or the first theme if it no longer exists
         """
